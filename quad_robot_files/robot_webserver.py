@@ -1,63 +1,85 @@
 import network
-import uasyncio as asyncio
+
 from machine import Pin
+import uasyncio as asyncio
+
 import robot
 import html
 
-SSID = "WARPSTAR-AC6D64"   # Wi-FiのSSIDを入力
-PASSWORD = "435C37A1AD1BE" # Wi-Fiのパスワードを入力
-IP_ADDRESS = '192.168.0.100'
-#led = Pin('LED', Pin.OUT)
+pico_led = Pin('LED', machine.Pin.OUT)
 
-# Wi-Fi接続関数
+ssid = 'your-SSID'
+password = 'your-PASSWORD'
+#IP_ADDRESS = '192.168.0.100'
+wlan = network.WLAN(network.STA_IF)
+
 async def connect_to_wifi():
-    wlan = network.WLAN(network.STA_IF)
+    #wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     wlan.config(pm = 0xa11140)
-    wlan.connect(SSID, PASSWORD)
+    wlan.connect(ssid, password)
     print("Connecting to Wi-Fi...")
     while not wlan.isconnected():
         await asyncio.sleep(1)
-    wlan_status = wlan.ifconfig()
-    wlan.ifconfig((IP_ADDRESS, wlan_status[1], wlan_status[2], wlan_status[3]))
-    wlan_status = wlan.ifconfig()
+    #wlan_status = wlan.ifconfig()
+    #wlan.ifconfig((IP_ADDRESS, wlan_status[1], wlan_status[2], wlan_status[3]))
+    #wlan_status = wlan.ifconfig()
     print("Connected to Wi-Fi!")
     print("IP Address:", wlan.ifconfig()[0])
 
-# HTMLページの生成
-#def webpage():
-
-
-# クライアントリクエストの処理関数
 async def serve_client(reader, writer):
+    print("Client connected")
     request_line = await reader.readline()
     print("Request:", request_line)
+    # We are not interested in HTTP request headers, skip them
     while await reader.readline() != b"\r\n":
         pass
 
-    request = request_line.decode().split(" ")[1]
-    print("Path:", request)
-    """if request == "/led/on":
-        led.value(1)  # LEDをON
-    elif request == "/led/off":
-        led.value(0)  # LEDをOFF"""
-    robot.set_action(request[1])
-    response = html.html #webpage()
-    writer.write(response.encode("utf-8"))
+    request = str(request_line)
+    try:
+        request = request.split()[1]
+    except IndexError:
+        pass
+    
+    if request == '/lighton?':
+        pico_led.on()
+    elif request =='/lightoff?':
+        pico_led.off()
+    elif request == '/stop?':
+        robot.set_action('STOP')
+    elif request == '/fwrd?':
+        robot.set_action('FWRD')
+    elif request == '/bwrd?':
+        robot.set_action('BWRD')
+    elif request == '/ltrn?':
+        robot.set_action('LTRN')
+    elif request == '/rtrn?':
+        robot.set_action('RTRN')
+    elif request == '/left?':
+        robot.set_action('LEFT')
+    elif request == '/rght?':
+        robot.set_action('RGHT')
+         
+    response = html.html
+    writer.write('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
+    writer.write(response)
+
     await writer.drain()
-    await writer.aclose()
+    await writer.wait_closed()
+    print("Client disconnected")
 
-# メイン処理
 async def main():
+    print('Connecting to Network...')
     await connect_to_wifi()
-    server = await asyncio.start_server(serve_client, "0.0.0.0", 80)
-    print("Server is running on port 80")
 
+    print('Setting up webserver...')
+    asyncio.create_task(asyncio.start_server(serve_client, "0.0.0.0", 80))
+    
     while True:
-        robot.set_frames()
+        robot.drive()
         await asyncio.sleep(0.03)
-
+                
 try:
     asyncio.run(main())
-except KeyboardInterrupt:
-    print("Server stopped.")
+finally:
+    asyncio.new_event_loop()
