@@ -31,11 +31,21 @@ for i in range(12):
     servo[i].freq(50)
     servo[i].duty_u16(get_pulse_width(90 + correction[i]))
 
-while True: # 繰り返し
+while True: # Repeat
+    # Update keyframe
+    div_counter += 1
+    if div_counter >= divide:
+        div_counter = 0
+        key_frame = next_key_frame
+        next_key_frame += 1
+        if next_key_frame > 1:
+            next_key_frame = 0
+    # Angle Calculation
     for i in range(12):
-        servo[i].duty_u16(get_pulse_width(angle[0][i] + correction[i]))
-    time.sleep(0.5) # 0.5秒待ち
+        temp_angle[i] = angle[key_frame][i] +  (angle[next_key_frame][i] - angle[key_frame][i]) * div_counter / divide
+    # Drive servos
     for i in range(12):
-        servo[i].duty_u16(get_pulse_width(angle[1][i] + correction[i]))
-    time.sleep(0.5) # 0.5秒待ち
+        servo[i].duty_u16(get_pulse_width(int(temp_angle[i]) + correction[i]))
+    time.sleep(0.03) # wait o.o3 sec
+
 
