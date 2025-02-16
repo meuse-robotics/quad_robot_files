@@ -2,7 +2,7 @@ from machine import Pin, Timer
 import time
 
 # ***** LED *****
-led = Pin(25, Pin.OUT)
+led = Pin('LED', Pin.OUT)
 led.value(0)
 
 # ***** Remote *****
@@ -78,7 +78,7 @@ while True:
         inv_data_code = (rm_code & 0xff000000) >> 24    #下24bitを捨てたあとの下8bitがinvDataCode
         if (data_code + inv_data_code) == 0xff:    #反転確認
             print("data_code="+str(data_code))
-            if data_code == 248:
+            if data_code == 248: #change 248 to 8 for adafruit Mini Remote Control
                 led.value(1)
-            elif data_code == 120:
+            elif data_code == 120: #change 120 to 10 for adafruit Mini Remote Control
                 led.value(0)
