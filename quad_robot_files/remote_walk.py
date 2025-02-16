@@ -32,12 +32,12 @@ step = [\
 [90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 8]\
 ]
 fwrd = [\
-[90,105, 70, 90, 86, 95, 90, 94, 85, 90, 75,110, 1],\
-[90,100,110, 90, 82,100, 90, 98, 80, 90, 80, 70, 1],\
-[90, 90, 90, 90, 78,105, 90,102, 75, 90, 90, 90, 3],\
-[90, 94, 85, 90, 75,110, 90,105, 70, 90, 86, 95, 1],\
-[90, 98, 80, 90, 80, 70, 90,100,110, 90, 82,100, 1],\
-[90,102, 75, 90, 90, 90, 90, 90, 90, 90, 78,105, 3]\
+[90,105, 70, 90, 86, 95, 90, 94, 85, 90, 75,110, 3],\
+[90,100,110, 90, 82,100, 90, 98, 80, 90, 80, 70, 3],\
+[90, 90, 90, 90, 78,105, 90,102, 75, 90, 90, 90, 8],\
+[90, 94, 85, 90, 75,110, 90,105, 70, 90, 86, 95, 3],\
+[90, 98, 80, 90, 80, 70, 90,100,110, 90, 82,100, 3],\
+[90,102, 75, 90, 90, 90, 90, 90, 90, 90, 78,105, 8]\
 ]
 '''
 fwrd = [\
@@ -196,7 +196,7 @@ for i in range(12):
 # ******************
 # ***** LED *****
 # ******************
-led = Pin(25, Pin.OUT)
+led = Pin('LED', Pin.OUT)
 led.value(0)
 
 # ******************
@@ -274,11 +274,11 @@ while True:
         inv_data_code = (rm_code & 0xff000000) >> 24    #下24bitを捨てたあとの下8bitがinvDataCode
         if (data_code + inv_data_code) == 0xff:    #反転確認
             print("data_code="+str(data_code))
-            if data_code == 248:
+            if data_code == 248: #change 248 to 8 for adafruit mini remote control
                 led.value(1)
-            elif data_code == 120:
+            elif data_code == 120: #change 120 to 10 for adafruit mini remote control
                 led.value(0)
-            elif data_code == 32:
+            elif data_code == 32: #change 32 to 21 for adafruit mini remote control
                 if action_mode == STEP:
                     action_mode = STOP
                 else:
@@ -286,42 +286,42 @@ while True:
                     action.clear()
                     action = step.copy()
                     rows = len(step)
-            elif data_code == 160:
+            elif data_code == 160: #change 160 to 17 for adafruit mini remote control
                 action_mode = FWRD
                 action.clear()
                 action = fwrd.copy()
                 rows = len(fwrd)
-            elif data_code == 0:
+            elif data_code == 0: #change 0 to 25 for adafruit mini remote control
                 action_mode = BWRD
                 action.clear()
                 action = bwrd.copy()
                 rows = len(bwrd)
-            elif data_code == 177:
+            elif data_code == 177: #change 177 to 16 for adafruit mini remote control
                 action_mode = LTRN
                 action.clear()
                 action = ltrn.copy()
                 rows = len(ltrn)
-            elif data_code == 33:
+            elif data_code == 33: #change 33 to 18 for adafruit mini remote control
                 action_mode = RTRN
                 action.clear()
                 action = rtrn.copy()
                 rows = len(rtrn)
-            elif data_code == 16:
+            elif data_code == 16: #change 16 to 20 for adafruit mini remote control
                 action_mode = LEFT
                 action.clear()
                 action = left.copy()
                 rows = len(left)
-            elif data_code == 128:
+            elif data_code == 128: #change 128 to 22 for adafruit mini remote control
                 action_mode = RGHT
                 action.clear()
                 action = rght.copy()
                 rows = len(rght)
-            elif data_code == 22:
+            elif data_code == 22: #change 22 to 24 for adafruit mini remote control
                 action_mode = EXILE
                 action.clear()
                 action = exile.copy()
                 rows = len(exile)
-            elif data_code == 216:
+            elif data_code == 216: #change 216 to 26 for adafruit mini remote control
                 action_mode = WALK
                 action.clear()
                 action = walk.copy()
